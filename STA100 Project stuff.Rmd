@@ -1,0 +1,104 @@
+---
+title: "STATS PROJECT"
+output: html_document
+date: "2024-03-06"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(ggplot2)
+library(ggthemes)
+library(shiny)
+#install.packages("shinydashboard")
+library(shinydashboard)
+```
+
+## LOAD THE DATA 
+
+```{r}
+heart <-read_csv("heart.csv") %>% clean_names()
+heart_bp <- heart %>% 
+  separate(col = "blood_pressure_mm_hg", into = c("systolic_bp", "diastolic_bp"), sep = "/")
+head(heart_bp)
+```
+
+## Look at data
+
+```{r}
+names(heart)
+```
+
+## plot 1
+
+```{r}
+heart_bp %>%
+  ggplot(aes(x=cholesterol_mg_d_l, y=as.numeric(systolic_bp), color= gender)) +
+  geom_jitter() + 
+  labs(title = "Cholesterol vs Blood Pressure", 
+       x = "Cholesterol (mg/dL)", 
+       y = "Systolic Blood Pressure (mm Hg)" ) + 
+  geom_smooth(method = "lm") +
+  theme_minimal() + 
+  theme(plot.title = element_text(hjust = 0.5))
+  
+```
+
+## plot 2
+
+```{r}
+# scatter plot for weight vs blood pressure, color by gender
+heart_bp %>%
+  ggplot(aes(x=weight_kg, y=as.numeric(systolic_bp), color= gender)) +
+  geom_jitter() + 
+  labs(title = "Weight vs Blood Pressure", 
+       x = "Weight (kg)", 
+       y = "Systolic Blood Pressure (mm Hg)" ) + 
+  theme_minimal() + 
+  geom_smooth(method = "lm") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+## plot 3 
+
+```{r}
+# scatter plot for age vs systolic_bp, colored by gender 
+heart_bp %>%
+  ggplot(aes(x=age, y=as.numeric(systolic_bp), color = gender)) +
+  geom_jitter() +
+  labs(title = "Age vs Blood Pressure", 
+       x = "Age", 
+       y = "Systolic Blood Pressure (mm Hg)" ) + 
+  theme_minimal() +
+  geom_smooth(method = "lm") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+```{r}
+reg1 <- lm(heart_attack ~ weight_kg  , data = heart)
+summary(reg1)
+```
+
+```{r}
+reg2 <- lm(heart_attack ~ cholesterol_mg_d_l  , data = heart)
+summary(reg2)
+```
+
+```{r}
+reg3 <- lm(heart_attack ~ cholesterol_mg_d_l + weight_kg + as.numeric(systolic_bp) , data = heart_bp)  
+summary(reg3)
+```
+
+```{r}
+reg4 <- lm(heart_attack ~ age , data = heart_bp)
+summary(reg4)
+```
+
+```{r}
+```
+
