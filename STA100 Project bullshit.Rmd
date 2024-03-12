@@ -1,0 +1,171 @@
+---
+title: "STATS PROJECT"
+output: html_document
+date: "2024-03-06"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(ggplot2)
+library(ggthemes)
+library(shiny)
+#install.packages("shinydashboard")
+library(shinydashboard)
+```
+
+LOAD THE DATA 
+```{r}
+diabetes <- read_csv("diabetes_prediction_data.csv") %>% clean_names()
+```
+explore data
+```{r}
+glimpse(diabetes)
+```
+
+```{r}
+diabetes %>%
+  ggplot(aes(age, fill = "purple3")) +
+  geom_density(color= "black") +
+  
+```
+Faceted table 
+```{r}
+model1 <- lm(diagnosis ~ bmi + insulin, data = diabetes)
+summary(model1) 
+model2 <- lm(diagnosis ~ diabetes_pedigree_function, data = diabetes)
+summary(model2)
+```
+
+
+
+
+
+Shiny application
+```{r}
+ui <- dashboardPage(
+  dashboardHeader(title = "Diabetes Prediction") ,
+  dashboardSidebar(disable = T) ,
+  dashboardBody(
+    title = "Plot by Age", 
+         selectInput("x", "Choose a Variable", choices =  c("bmi", "insulin", "glucose", "skin_thickness", "diabetes_pedigree_function", "pregnancies", "blood_pressure"), selected = "bmi"),  
+    selectInput("y", "Choose a Variable", choices = c("age" ,"bmi", "insulin", "glucose", "skin_thickness", "diabetes_pedigree_function", "pregnancies", "blood_pressure"), selected = "age"), 
+         plotOutput("plot", width = "600px", height = "400px")
+    )
+)
+
+server <- function(input, output) {
+    output$plot <- renderPlot ( { 
+        ggplot(diabetes, aes_string( x= input$x, y= input$y, color = input$x)) +
+        geom_jitter() +
+        geom_smooth(method = "lm", color = "red") +
+        labs(title = "Scatterplot of input$x and input$y", 
+             x= "input$x" , 
+             y= "input$y" )
+      
+      
+      
+      })
+}
+shinyApp(ui, server)
+    
+
+```
+
+```{r}
+ui <- dashboardPage(
+  dashboardHeader(title = "Diabetes Prediction") ,
+  dashboardSidebar(disable = T) ,
+  dashboardBody(
+    title = "Plot by Age", 
+         selectInput("x", "Choose a Variable", choices =  c("age", "bmi", "insulin", "glucose", "skin_thickness", "diabetes_pedigree_function", "blood_pressure"), selected = "bmi"),  
+         plotOutput("plot", width = "600px", height = "400px")
+    )
+)
+
+server <- function(input, output) {
+    output$plot <- renderPlot ( { 
+        ggplot(diabetes, aes_string( input$x)) +
+        geom_density(color = "black", fill = "purple3", alpha = 0.6)
+      
+      
+      
+      })
+}
+shinyApp(ui, server)
+```
+
+```{r}
+heart <-read_csv("heart.csv") %>% clean_names()
+heart_bp <- heart %>% 
+  separate(col = "blood_pressure_mm_hg", into = c("systolic_bp", "diastolic_bp"), sep = "/")
+head(heart_bp)
+```
+
+```{r}
+```
+
+```{r}
+names(heart)
+```
+
+```{r}
+heart_bp %>%
+  ggplot(aes(x=cholesterol_mg_d_l, y=as.numeric(systolic_bp), color= gender)) +
+  geom_jitter() + 
+  labs(title = "Cholesterol vs Blood Pressure", 
+       x = "Cholesterol (mg/dL)", 
+       y = "Systolic Blood Pressure (mm Hg)" ) + 
+  geom_smooth(method = "lm") +
+  theme_minimal() + 
+  theme(plot.title = element_text(hjust = 0.5))
+  
+```
+
+```{r}
+# scatter plot for weight vs blood pressure, color by gender
+heart_bp %>%
+  ggplot(aes(x=weight_kg, y=as.numeric(systolic_bp), color= gender)) +
+  geom_jitter() + 
+  labs(title = "Weight vs Blood Pressure", 
+       x = "Weight (kg)", 
+       y = "Systolic Blood Pressure (mm Hg)" ) + 
+  theme_minimal() + 
+  geom_smooth(method = "lm") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+```{r}
+# scatterplot exercise hours vs blood pressure, colored by gender
+heart_bp %>%
+  ggplot(aes(x=exercise_hours_week, y=as.numeric(systolic_bp), color= gender)) +
+  geom_jitter() +
+  geom_smooth(method = "lm") +
+  labs(title = "Exercise Hours vs Blood Pressure", 
+       x = "Exercise Hours", 
+       y = "Systolic Blood Pressure (mm Hg)" ) + 
+  theme_minimal() + 
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+```{r}
+reg1 <- lm(heart_attack ~ weight_kg  , data = heart)
+summary(reg1)
+```
+
+```{r}
+reg2 <- lm(heart_attack ~ cholesterol_mg_d_l  , data = heart)
+summary(reg2)
+```
+
+```{r}
+reg3 <- lm(heart_attack ~ cholesterol_mg_d_l + weight_kg + as.numeric(systolic_bp) , data = heart_bp)  
+summary(reg3)
+```
+
+```{r}
+```
+

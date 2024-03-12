@@ -1,0 +1,42 @@
+---
+title: "STA100_2-13"
+output: html_document
+date: "2024-02-13"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+#find pdf of normal dist
+dnorm(x=2, mean=0, sd=1) # give p value for on pdf (y-value on pdf)
+
+```
+```{r}
+# cdf = cumulative probability function, probability up to that point
+# pnorm(Q, mean, sd, lower.tail = T) gives the probability of lower tail, if =F than it give p above  Q (default is T)
+```
+
+```{r}
+# q norm function gives quartile (z-score???) of point on x-axis, lower.tail = T gives lower value, = F is upper
+qnorm(.95, mean=0, sd=1)
+# qnorm(p, mean, sd, lower.tail= )
+```
+
+```{r}
+#generates random variables that are normally distributed
+#rnorm(*number of obs*, mean= , sd)
+rnorm(10, mean=0, sd=2)
+```
+
+```{r}
+#qqplot test whether data set will follow normal distribution, visualizes normal distribution of data
+#datapoints near line= normal dist, far from line= not normal dist
+qqnorm(data$var, main = "title")
+qqline(data$var)
+
+```
+
