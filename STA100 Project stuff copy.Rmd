@@ -12,22 +12,13 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(janitor)
 library(ggplot2)
+library(ggthemes)
+library(shiny)
+#install.packages("shinydashboard")
+library(shinydashboard)
 ```
-
-
-
-
-
-
 
 ## LOAD THE DATA 
-```{r}
-
-
-
-
-```
-
 
 ```{r}
 heart <-read_csv("heart.csv") %>% clean_names()
@@ -35,7 +26,7 @@ heart_bp <- heart %>%
   separate(col = "blood_pressure_mm_hg", into = c("systolic_bp", "diastolic_bp"), sep = "/")
 head(heart_bp) 
 # convert smoker into a numeric variable
-heart_bp$smoker <- ifelse(heart_bp$smoker == "Yes", 1, 0)
+heart_bp$smoker <- ifelse(heart_bp$smoker == "yes", 1, 0)
 heart_bmi <- heart_bp %>%
   mutate(height_meter = height_cm / 100) %>%
   mutate(BMI = weight_kg / (height_meter^2))
@@ -82,7 +73,7 @@ heart_bmi %>%
 
 ```{r}
 # scatter plot for age vs systolic_bp, colored by gender 
-heart_bmi %>%
+heart_bp %>%
   ggplot(aes(x=age, y=as.numeric(systolic_bp), color = gender)) +
   geom_jitter() +
   labs(title = "Age vs Blood Pressure", 
@@ -95,76 +86,26 @@ heart_bmi %>%
 
 
 ```{r}
-reg1 <- lm(as.numeric(systolic_bp) ~ BMI + age + smoker + gender + cholesterol_mg_d_l + glucose_mg_d_l  + exercise_hours_week , data = heart_bmi)
+reg1 <- lm(heart_attack ~ BMI  , data = heart_bmi)
 summary(reg1)
 ```
 
 ```{r}
-reg2 <- lm(as.numeric(systolic_bp) ~ smoker +  cholesterol_mg_d_l + glucose_mg_d_l +  exercise_hours_week , data = heart_bmi)
+reg2 <- lm(heart_attack ~ cholesterol_mg_d_l  , data = heart)
 summary(reg2)
-#plot the residuals for reg2
-plot(reg2, which = 1)
 ```
 
 ```{r}
-#plot the standardized residuals for reg2 with axis labels
-plot(reg2, which = 2)
-```
-
-
-
-
-```{r}
-#plot the square root of the standardized residuals for reg2 with axis labels
-plot(reg2, which = 3)
-```
-
-```{r}
-#cooks distance plot for reg2 
-plot(reg2, which = 4)
-```
-
-```{r}
-#correlations graphs for the variables in reg2
-pairs(heart_bmi %>% select(smoker, cholesterol_mg_d_l, glucose_mg_d_l, smoker, exercise_hours_week))
-```
-
-```{r}
-#graph the systotlic_bp in density plots, facet wrap by smoker
-heart_bmi %>%
-  ggplot(aes(x=as.numeric(systolic_bp), fill = smoker)) +
-  geom_density(alpha = 0.5) +
-  labs(title = "Systolic Blood Pressure Density by Smoker Status", 
-       x = "Systolic Blood Pressure (mm Hg)", 
-       y = "Density") + 
-  theme_minimal() +
-  facet_wrap(~smoker)
-```
-
-
-
-```{r}
-cor(heart_bmi %>% select(smoker, cholesterol_mg_d_l, glucose_mg_d_l, smoker, exercise_hours_week))
-```
-
-```{r}
-```
-
-```{r}
-reg3 <- lm(heart_attack ~ cholesterol_mg_d_l + weight_kg + as.numeric(systolic_bp) , data = heart_bmi)  
+reg3 <- lm(heart_attack ~ cholesterol_mg_d_l + weight_kg + as.numeric(systolic_bp) , data = heart_bp)  
 summary(reg3)
 ```
 
 ```{r}
-reg4 <- lm(heart_attack ~ age , data = heart_bmi)
+reg4 <- lm(heart_attack ~ age , data = heart_bp)
 summary(reg4)
 ```
 ```{r}
-reg5 <- lm(heart_attack ~ age + cholesterol_mg_d_l + as.numeric(systolic_bp) + glucose_mg_d_l + smoker + exercise_hours_week + BMI + gender, data = heart_bmi)
+reg5 <- lm(heart_attack ~ age + weight_kg + cholesterol_mg_d_l + as.numeric(systolic_bp) + cholesterol_mg_d_l + glucose_mg_d_l + smoker + exercise_hours_week, data = heart_bp)
 summary(reg5)
-```
-```{r}
-reg6 <- lm(heart_attack ~  cholesterol_mg_d_l + as.numeric(systolic_bp) + glucose_mg_d_l + smoker + exercise_hours_week + BMI, data = heart_bmi)
-summary(reg6)
 ```
 
